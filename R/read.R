@@ -19,8 +19,8 @@ maybe_normalizePath = function(.x, np = FALSE) {
 #' @param NA_value numeric value to be used for conversion into NA values; by default this is read from the input file
 #' @param along length-one character or integer, or list; determines how several arrays are combined, see Details.
 #' @param RasterIO list with named parameters for GDAL's RasterIO, to further control the extent, resolution and bands to be read from the data source; see details.
-#' @param proxy logical; if \code{TRUE}, an object of class \code{stars_proxy} is read which contains array 
-#' metadata only; if \code{FALSE} the full array data is read in memory. Always \code{FALSE} for curvilinear girds. 
+#' @param proxy logical; if \code{TRUE}, an object of class \code{stars_proxy} is read which contains array
+#' metadata only; if \code{FALSE} the full array data is read in memory. Always \code{FALSE} for curvilinear girds.
 #' If not set, defaults to \code{TRUE} when the number of cells to be read is larger than \code{options(stars.n_proxy},
 #' or to 1e8 if that option was not set.
 #' @param curvilinear length two character vector with names of subdatasets holding longitude and latitude values for all raster cells, or named length 2 list holding longitude and latitude matrices; the names of this list should correspond to raster dimensions referred to
@@ -73,7 +73,7 @@ maybe_normalizePath = function(.x, np = FALSE) {
 #' file.remove(tmp)
 read_stars = function(.x, ..., options = character(0), driver = character(0),
 		sub = TRUE, quiet = FALSE, NA_value = NA_real_, along = NA_integer_,
-		RasterIO = list(), proxy = !length(curvilinear) && is_big(.x, sub = sub, ...), 
+		RasterIO = list(), proxy = !length(curvilinear) && is_big(.x, sub = sub, normalize_path = normalize_path, ...),
 		curvilinear = character(0), normalize_path = TRUE, RAT = character(0)) {
 
 	x = if (is.list(.x)) {
@@ -179,7 +179,7 @@ read_stars = function(.x, ..., options = character(0), driver = character(0),
 				co = apply(ct, 1, function(x) rgb(x[1], x[2], x[3], x[4], maxColorValue = 255))
 				if (min_value > 0)
 					co = co[-seq_len(min_value)] # removes [0,...,(min_value-1)]
-				data = structure(data + (1 - min_value), 
+				data = structure(data + (1 - min_value),
 					levels = as.character(seq_along(co)), colors = co, class = "factor")
 			}
 			if (any(lengths(at) > 0)) {
@@ -226,7 +226,7 @@ read_stars = function(.x, ..., options = character(0), driver = character(0),
 #' @export
 #' @name read_stars
 #' @param x object to be read with \link{read_stars}
-#' @param n_proxy integer; number of cells above which .x will be read as stars 
+#' @param n_proxy integer; number of cells above which .x will be read as stars
 #' proxy object, i.e. not as in-memory arrays but left on disk
 is_big = function(x, ..., sub = sub, n_proxy = options("stars.n_proxy")[[1]] %||% 1.e8) {
 	prod(dim(read_stars(x, ..., sub = sub, proxy = TRUE, quiet = TRUE))) > n_proxy
